@@ -97,7 +97,7 @@ export default function Home() {
       });
 
       data.reset();
-      fetchGalleries();
+      setGalleries((prev) => [...prev, result.data]);
     } catch (err) {
       setToast({
         type: "error",
@@ -161,7 +161,7 @@ export default function Home() {
 
       if (result.success) {
         setToast({ type: "success", message: "Gallery deleted successfully" });
-        fetchGalleries();
+        setGalleries((prev) => prev.filter((gallery) => gallery._id !== id));
       } else {
         setToast({ type: "error", message: "Failed to delete gallery" });
       }
@@ -229,53 +229,53 @@ export default function Home() {
             {galleries.length === 0 ? (
               <p className="text-gray-500">No galleries created yet</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {galleries.map((gallery) => (
-                  <div
-                    key={gallery._id}
-                    className="border rounded-lg p-4 hover:shadow-lg"
-                  >
-                    {/* category title */}
-                    <h3 className="font-semibold text-lg mb-2">
-                      {gallery.category}
-                    </h3>
-
-                    {/* file count */}
-                    <p className="text-sm text-gray-500 mb-3">
-                      {gallery.files?.length || 0} files
-                    </p>
-
-                    {/* preview first few files */}
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {gallery.files?.slice(0, 6).map((file) => (
-                        <div key={file._id} className="flex flex-col">
-                          {file.type === "video" ? (
-                            <video
-                              src={file.url}
-                              className="w-full h-24 object-cover rounded bg-black"
-                              muted
-                            />
-                          ) : (
-                            <img
-                              src={file.url}
-                              alt={file.title}
-                              className="w-full h-24 object-cover rounded"
-                            />
-                          )}
-
-                          <p className="text-xs mt-1 truncate">{file.title}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => deleteGallery(gallery._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded text-sm w-full"
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {galleries.flatMap((gallery) =>
+                  gallery.files?.map((file) => (
+                    <div
+                      key={file._id}
+                      className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
                     >
-                      Delete Category
-                    </button>
-                  </div>
-                ))}
+                      {/* Media Preview */}
+                      <div className="w-full h-56 bg-gray-200">
+                        {file.type === "video" ? (
+                          <video
+                            src={file.url}
+                            controls
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={file.url}
+                            alt={file.title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="p-3">
+                        <h3 className="font-semibold text-gray-800 truncate">
+                          {file.title || "Untitled"}
+                        </h3>
+
+                        <p className="text-sm text-gray-500 mt-1">
+                          Category: {gallery.category}
+                        </p>
+                      </div>
+
+                      {/* Delete Button */}
+                      <div className="p-3 pt-0">
+                        <button
+                          onClick={() => deleteGallery(gallery._id)}
+                          className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition"
+                        >
+                          Delete Category
+                        </button>
+                      </div>
+                    </div>
+                  )),
+                )}
               </div>
             )}
           </div>
