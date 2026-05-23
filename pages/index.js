@@ -109,8 +109,38 @@ export default function Home() {
   };
 
   const deleteMedia = async (id) => {
-    await fetch(`/api/media/${id}`, { method: "DELETE" });
-    fetchMedia();
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this media?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/media/${id}`, {
+        method: "DELETE",
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        setToast({
+          type: "success",
+          message: "Media deleted successfully",
+        });
+
+        fetchMedia();
+      } else {
+        setToast({
+          type: "error",
+          message: result.error || "Failed to delete media",
+        });
+      }
+    } catch (error) {
+      setToast({
+        type: "error",
+        message: error.message,
+      });
+    }
   };
 
   const updateTitle = async (id, title) => {
