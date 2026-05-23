@@ -97,7 +97,15 @@ export default function Home() {
       });
 
       data.reset();
-      setGalleries((prev) => [...prev, result.data]);
+      setGalleries((prev) => {
+        const exists = prev.find((g) => g._id === result.data._id);
+
+        if (exists) {
+          return prev.map((g) => (g._id === result.data._id ? result.data : g));
+        }
+
+        return [...prev, result.data];
+      });
     } catch (err) {
       setToast({
         type: "error",
@@ -152,21 +160,40 @@ export default function Home() {
     fetchMedia();
   };
 
-  const deleteGallery = async (id) => {
-    if (!confirm("Are you sure you want to delete this gallery?")) return;
+  const deleteGallery = async (fileId) => {
+    if (!confirm("Delete this file?")) return;
 
     try {
-      const res = await fetch(`/api/gallery/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/gallery/file/${fileId}`, {
+        method: "DELETE",
+      });
+
       const result = await res.json();
 
       if (result.success) {
-        setToast({ type: "success", message: "Gallery deleted successfully" });
-        setGalleries((prev) => prev.filter((gallery) => gallery._id !== id));
+        setToast({
+          type: "success",
+          message: "File deleted successfully",
+        });
+
+        // remove deleted file from local state
+        setGalleries((prev) =>
+          prev.map((gallery) => ({
+            ...gallery,
+            files: gallery.files?.filter((file) => file._id !== fileId),
+          })),
+        );
       } else {
-        setToast({ type: "error", message: "Failed to delete gallery" });
+        setToast({
+          type: "error",
+          message: result.error,
+        });
       }
     } catch (error) {
-      setToast({ type: "error", message: error.message });
+      setToast({
+        type: "error",
+        message: error.message,
+      });
     }
   };
 
@@ -267,10 +294,10 @@ export default function Home() {
                       {/* Delete Button */}
                       <div className="p-3 pt-0">
                         <button
-                          onClick={() => deleteGallery(gallery._id)}
+                          onClick={() => deleteGallery(file._id)}
                           className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition"
                         >
-                          Delete Category
+                          Delete file
                         </button>
                       </div>
                     </div>
