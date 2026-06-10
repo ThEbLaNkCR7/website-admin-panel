@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useRef  } from "react";
 
 export default function MediaForm({ onUpload, loading }) {
   const [file, setFile] = useState(null);
@@ -11,9 +11,16 @@ export default function MediaForm({ onUpload, loading }) {
   const [commencementDate, setCommencementDate] = useState("");
   const [finalizationDate, setFinalizationDate] = useState("");
   const [description, setDescription] = useState("");
+  const fileInputRef = useRef(null);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   const handleUpload = () => {
     if (!file) return alert("Select file");
+    if (file.size > MAX_FILE_SIZE) {
+    alert("File too large! Maximum allowed size is 5MB.");
+    return;
+  }
 
     onUpload({
       file,
@@ -34,6 +41,10 @@ export default function MediaForm({ onUpload, loading }) {
         setCommencementDate("");
         setFinalizationDate("");
         setDescription("");
+
+        if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+  }
       },
     });
   };
@@ -120,6 +131,7 @@ export default function MediaForm({ onUpload, loading }) {
 
       <div className="mb-4">
         <input
+          ref={fileInputRef}
           type="file"
           onChange={(e) => setFile(e.target.files?.[0])}
           className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"

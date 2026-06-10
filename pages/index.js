@@ -256,7 +256,7 @@ export default function Home() {
             {galleries.length === 0 ? (
               <p className="text-gray-500">No galleries created yet</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {galleries.flatMap((gallery) =>
                   gallery.files?.map((file) => (
                     <div
@@ -264,7 +264,7 @@ export default function Home() {
                       className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
                     >
                       {/* Media Preview */}
-                      <div className="w-full h-56 bg-gray-200">
+                      <div className="w-full h-24 bg-gray-200">
                         {file.type === "video" ? (
                           <video
                             src={file.url}
