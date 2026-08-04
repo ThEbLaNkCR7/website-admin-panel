@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import { connectDB } from "../../../lib/db";
 import Media from "../../../models/media";
 
 export default async function handler(req, res) {

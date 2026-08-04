@@ -68,8 +68,6 @@ export default async function handler(req, res) {
 
     const finalizationDate = finalizationRaw ? new Date(finalizationRaw) : null;
 
-    console.log("FIELDS RECEIVED:", fields);
-
     const result = await cloudinary.uploader.upload(file.filepath, {
       resource_type: "auto",
     });

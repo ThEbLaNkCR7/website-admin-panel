@@ -47,27 +47,27 @@ export default async function handler(req, res) {
       });
     }
 
-    const filesData = [];
+    const filesData = (
+      await Promise.all(
+        uploadedFiles.map(async (file, i) => {
+          if (!file?.filepath) return null;
 
-    for (let i = 0; i < uploadedFiles.length; i++) {
-      const file = uploadedFiles[i];
+          const uploadResult = await cloudinary.uploader.upload(file.filepath, {
+            folder: "gallery-files",
+            resource_type: "auto",
+          });
 
-      if (!file?.filepath) continue;
+          const isVideo = file.mimetype?.startsWith("video");
 
-      const uploadResult = await cloudinary.uploader.upload(file.filepath, {
-        folder: "gallery-files",
-        resource_type: "auto",
-      });
-
-      const isVideo = file.mimetype?.startsWith("video");
-
-      filesData.push({
-        title: titles[i] || file.originalFilename || "Untitled",
-        url: uploadResult.secure_url,
-        type: isVideo ? "video" : "image",
-        createdAt: new Date(),
-      });
-    }
+          return {
+            title: titles[i] || file.originalFilename || "Untitled",
+            url: uploadResult.secure_url,
+            type: isVideo ? "video" : "image",
+            createdAt: new Date(),
+          };
+        }),
+      )
+    ).filter(Boolean);
 
     const gallery = await Gallery.findOneAndUpdate(
       { category },
